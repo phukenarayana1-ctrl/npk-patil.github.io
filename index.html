@@ -5,13 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>महाराष्ट्र लाइव्ह हवामान</title>
     <style>
-        body { font-family: 'Arial', sans-serif; background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: rgba(255, 255, 255, 0.15); padding: 35px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); backdrop-filter: blur(12px); text-align: center; width: 320px; border: 1px solid rgba(255,255,255,0.2); }
+        /* हा भाग तुमच्या ॲपला निळा आणि आकर्षक रंग देतो */
+        body { 
+            font-family: 'Arial', sans-serif; 
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); 
+            color: white; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .card { 
+            background: rgba(255, 255, 255, 0.1); 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4); 
+            backdrop-filter: blur(15px); 
+            text-align: center; 
+            width: 320px; 
+            border: 1px solid rgba(255,255,255,0.2);
+        }
         h1 { font-size: 22px; color: #ffeb3b; margin-bottom: 20px; }
         .temp { font-size: 65px; font-weight: bold; margin: 10px 0; }
-        .city { font-size: 28px; font-weight: bold; }
-        .desc { font-size: 20px; margin-bottom: 20px; color: #00d2ff; }
-        button { background: #ff9800; border: none; padding: 12px; border-radius: 30px; color: white; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s; }
+        .city { font-size: 28px; font-weight: bold; margin-bottom: 5px; }
+        .desc { font-size: 20px; color: #00d2ff; margin-bottom: 20px; }
+        button { 
+            background: #ff9800; 
+            border: none; 
+            padding: 12px; 
+            border-radius: 30px; 
+            color: white; 
+            font-weight: bold; 
+            cursor: pointer; 
+            width: 100%; 
+            font-size: 16px;
+            transition: 0.3s;
+        }
         button:hover { background: #e68a00; }
     </style>
 </head>
@@ -24,7 +54,7 @@
         <button onclick="getLocation()">📍 लोकेशन अपडेट करा</button>
     </div>
     <script>
-        const apiKey = "23756e9457707eb42e24060c3251da43"; // तुमची की
+        const apiKey = "23756e9457707eb42e24060c3251da43"; // तुमची सक्रिय की
         window.onload = getLocation;
         function getLocation() {
             if (navigator.geolocation) {
@@ -34,14 +64,17 @@
             } else { fetchWeather("q=Sillod,IN"); }
         }
         async function fetchWeather(query) {
-            const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?${query}&appid=${apiKey}&units=metric&lang=mr`);
-            const data = await res.json();
-            if(data.cod === 200) {
-                document.getElementById('city').innerText = data.name;
-                document.getElementById('temp').innerText = Math.round(data.main.temp) + "°C";
-                document.getElementById('desc').innerText = data.weather[0].description;
-            }
+            try {
+                const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?${query}&appid=${apiKey}&units=metric&lang=mr`);
+                const data = await res.json();
+                if(data.cod === 200) {
+                    document.getElementById('city').innerText = data.name;
+                    document.getElementById('temp').innerText = Math.round(data.main.temp) + "°C";
+                    document.getElementById('desc').innerText = data.weather[0].description;
+                }
+            } catch (e) { console.log("Error"); }
         }
     </script>
 </body>
 </html>
+
