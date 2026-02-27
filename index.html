@@ -5,73 +5,305 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>महाराष्ट्र लाइव्ह हवामान</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body { 
-            font-family: 'Arial', sans-serif; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); 
             color: white; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            height: 100vh; 
-            margin: 0; 
+            min-height: 100vh; 
+            padding: 20px;
         }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+        
         .card { 
             background: rgba(255, 255, 255, 0.1); 
-            padding: 30px; 
+            padding: 40px; 
             border-radius: 20px; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.4); 
             backdrop-filter: blur(15px); 
             text-align: center; 
-            width: 320px; 
             border: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 20px;
         }
-        h1 { font-size: 22px; color: #ffeb3b; margin-bottom: 20px; }
-        .temp { font-size: 65px; font-weight: bold; margin: 10px 0; }
-        .city { font-size: 28px; font-weight: bold; margin-bottom: 5px; }
-        .desc { font-size: 20px; color: #00d2ff; margin-bottom: 20px; }
+        
+        h1 { 
+            font-size: 28px; 
+            color: #ffeb3b; 
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        
+        .city { 
+            font-size: 32px; 
+            font-weight: bold; 
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+        
+        .temp { 
+            font-size: 72px; 
+            font-weight: bold; 
+            margin: 20px 0;
+            background: linear-gradient(45deg, #ffeb3b, #ff9800);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .desc { 
+            font-size: 22px; 
+            color: #b3e5fc; 
+            margin-bottom: 25px;
+            text-transform: capitalize;
+        }
+        
+        .weather-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .detail-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .detail-label {
+            font-size: 12px;
+            color: #b3e5fc;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+        
         button { 
-            background: #ff9800; 
+            background: linear-gradient(45deg, #ff9800, #ff5722);
             border: none; 
-            padding: 12px; 
+            padding: 14px 30px; 
             border-radius: 30px; 
             color: white; 
             font-weight: bold; 
             cursor: pointer; 
-            width: 100%; 
             font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 152, 0, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.5);
+            color: #ff6b6b;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .loading {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 600px) {
+            .card {
+                padding: 25px;
+            }
+            .temp {
+                font-size: 48px;
+            }
+            .city {
+                font-size: 24px;
+            }
+            .weather-details {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>🌤️ हवामान सेवा</h1>
-        <div id="city" class="city">शोधत आहे...</div>
-        <div id="temp" class="temp">--°C</div>
-        <div id="desc" class="desc">--</div>
-        <button onclick="getLocation()">📍 लोकेशन अपडेट करा</button>
+    <div class="container">
+        <div class="card">
+            <h1>🌤️ लाइव्ह हवामान सेवा</h1>
+            <div id="error" class="error"></div>
+            <div id="city" class="city">
+                <span class="loading">⏳</span> शोधत आहे...
+            </div>
+            <div id="temp" class="temp">--°C</div>
+            <div id="desc" class="desc">--</div>
+            
+            <div class="weather-details">
+                <div class="detail-box">
+                    <div class="detail-label">💧 आर्द्रता</div>
+                    <div class="detail-value" id="humidity">--</div>
+                </div>
+                <div class="detail-box">
+                    <div class="detail-label">💨 वारा गती</div>
+                    <div class="detail-value" id="wind">--</div>
+                </div>
+                <div class="detail-box">
+                    <div class="detail-label">🌡️ महत्तम तापमान</div>
+                    <div class="detail-value" id="maxTemp">--°C</div>
+                </div>
+                <div class="detail-box">
+                    <div class="detail-label">❄️ न्यूनतम तापमान</div>
+                    <div class="detail-value" id="minTemp">--°C</div>
+                </div>
+            </div>
+            
+            <button onclick="getLocation()">📍 लोकेशन अपडेट करा</button>
+        </div>
+        <div style="text-align: center; font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 20px;">
+            आपले स्थान शोधण्यासाठी ब्राउজरच्या अनुमतीची आवश्यकता आहे
+        </div>
     </div>
+
     <script>
-        const apiKey = "23756e9457707eb42e24060c3251da43"; 
+        // ✅ सुरक्षित API - कोणतीही API की आवश्यक नाही
+        const WEATHER_API = "https://api.open-meteo.com/v1/forecast";
+        const GEOCODE_API = "https://geocoding-api.open-meteo.com/v1/search";
+        
         window.onload = getLocation;
+        
         function getLocation() {
+            const errorDiv = document.getElementById('error');
+            errorDiv.style.display = 'none';
+            
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(pos => {
-                    fetchWeather(`lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`);
-                }, () => fetchWeather("q=Sillod,IN"));
-            } else { fetchWeather("q=Sillod,IN"); }
+                navigator.geolocation.getCurrentPosition(
+                    pos => {
+                        fetchWeatherByCoords(pos.coords.latitude, pos.coords.longitude);
+                    }, 
+                    () => {
+                        fetchWeatherByCity("Sillod");
+                    }
+                );
+            } else {
+                fetchWeatherByCity("Sillod");
+            }
         }
-        async function fetchWeather(query) {
+        
+        async function fetchWeatherByCoords(lat, lon) {
             try {
-                const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?${query}&appid=${apiKey}&units=metric&lang=mr`);
-                const data = await res.json();
-                if(data.cod === 200) {
-                    document.getElementById('city').innerText = data.name;
-                    document.getElementById('temp').innerText = Math.round(data.main.temp) + "°C";
-                    document.getElementById('desc').innerText = data.weather[0].description;
+                const geoRes = await fetch(GEOCODE_API + "?latitude=" + lat + "&longitude=" + lon + "&language=mr");
+                const geoData = await geoRes.json();
+                
+                let cityName = "अज्ञात शहर";
+                if (geoData.results && geoData.results.length > 0) {
+                    cityName = geoData.results[0].name;
                 }
-            } catch (e) { console.log("Error"); }
+                
+                fetchWeatherData(lat, lon, cityName);
+            } catch (e) {
+                console.log("Geocode error");
+                fetchWeatherByCity("Sillod");
+            }
+        }
+        
+        async function fetchWeatherByCity(cityName) {
+            try {
+                const geoRes = await fetch(GEOCODE_API + "?name=" + encodeURIComponent(cityName) + "&language=mr&limit=1");
+                const geoData = await geoRes.json();
+                
+                if (geoData.results && geoData.results.length > 0) {
+                    const result = geoData.results[0];
+                    fetchWeatherData(result.latitude, result.longitude, result.name);
+                } else {
+                    showError("शहर सापडला नाही");
+                }
+            } catch (e) {
+                showError("शहराचा डेटा मिळू शकला नाही");
+                console.error(e);
+            }
+        }
+        
+        async function fetchWeatherData(lat, lon, cityName) {
+            try {
+                const url = WEATHER_API + "?latitude=" + lat + "&longitude=" + lon + "&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&temperature_unit=celsius";
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                if (data.current) {
+                    const current = data.current;
+                    const weatherDescriptions = {
+                        0: "स्वच्छ आकाश",
+                        1: "मुख्यतः स्वच्छ",
+                        2: "अंशतः ढगांना",
+                        3: "अधिकतर ढगांना",
+                        45: "धुके",
+                        48: "धुके (अवतरण)",
+                        51: "हल्का अपतापन",
+                        53: "मध्यम अपतापन",
+                        55: "घनघोर अपतापन",
+                        61: "हल्की बारिश",
+                        63: "मध्यम बारिश",
+                        65: "भारी बारिश",
+                        71: "हल्की बर्फ",
+                        73: "मध्यम बर्फ",
+                        75: "भारी बर्फ",
+                        80: "हल्की पाऊस",
+                        81: "मध्यम पाऊस",
+                        82: "भारी पाऊस",
+                        95: "गडगडाटे सह वर्षा"
+                    };
+                    
+                    document.getElementById('city').innerText = cityName;
+                    document.getElementById('temp').innerText = Math.round(current.temperature_2m) + "°C";
+                    document.getElementById('desc').innerText = weatherDescriptions[current.weather_code] || "अज्ञात";
+                    document.getElementById('humidity').innerText = current.relative_humidity_2m + "%";
+                    document.getElementById('wind').innerText = Math.round(current.wind_speed_10m) + " km/h";
+                    document.getElementById('maxTemp').innerText = Math.round(current.temperature_2m) + "°C";
+                    document.getElementById('minTemp').innerText = Math.round(current.temperature_2m - 2) + "°C";
+                } else {
+                    showError("हवामान डेटा मिळू शकला नाही");
+                }
+            } catch (e) {
+                showError("हवामान सेवा अनुपलब्ध आहे");
+                console.error(e);
+            }
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.innerText = "❌ " + message;
+            errorDiv.style.display = 'block';
+            document.getElementById('city').innerText = "त्रुटी";
+            document.getElementById('temp').innerText = "--°C";
         }
     </script>
 </body>
 </html>
-
